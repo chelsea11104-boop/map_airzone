@@ -129,38 +129,40 @@
     // ===============================
     // LOAD GEOJSON BATAS KECAMATAN + WARNA BERBEDA
     // ===============================
+    function getRandomColor() {
+      return "#" + Math.floor(Math.random() * 16777215).toString(16);
+    }
+
     fetch("batas_kecamatan.geojson")
-      .then(response => response.json())
-      .then(data => {
-    
-        // Fungsi untuk memberi warna berbeda secara konsisten
-        function getRandomColor(name) {
-          // Agar warnanya tetap sama setiap load, kita hash dari nama kecamatan
-          let hash = 0;
-          for (let i = 0; i < name.length; i++) {
-            hash = name.charCodeAt(i) + ((hash << 5) - hash);
-          }
-          const c = (hash & 0x00ffffff)
-            .toString(16)
-            .toUpperCase();
-    
-          return "#" + "00000".substring(0, 6 - c.length) + c;
-        }
-    
-        L.geoJSON(data, {
+      .then((res) => res.json())
+      .then((geoData) => {
+        console.log("GeoJSON berhasil dimuat:", geoData);
+        L.geoJSON(geoData, {
           style: function (feature) {
-            const kecamatan = feature.properties.NAMA_KEC || feature.properties.kecamatan || "default";
             return {
-              color: "#555",
+              color: "#000", // garis tepi hitam
               weight: 1,
-              fillColor: getRandomColor(kecamatan),
-              fillOpacity: 0.35
+              fillColor: getRandomColor(),
+              fillOpacity: 0.4,
             };
-          }
+          },
+          onEachFeature: function (feature, layer) {
+            if (feature.properties && feature.properties.name) {
+              layer.bindPopup(`<b>${feature.properties.name}</b>`);
+            }
+          },
         }).addTo(map);
-    
       })
-      .catch(err => console.error("Gagal load GeoJSON:", err));
+      .catch((err) => console.error("Gagal load batas kecamatan:", err));
+
+    // Fungsi warna PM2.5
+    function getColor(pm25) {
+      if (pm25 <= 15.5) return "#2ECC71";
+      else if (pm25 <= 55.4) return "#F1C40F";
+      else if (pm25 <= 150.4) return "#E67E22";
+      else if (pm25 <= 250.4) return "#E74C3C";
+      else return "#2C3E50";
+    }
         
     // ===============================
     // WARNA MARKER BERDASARKAN PM2.5
@@ -290,4 +292,5 @@
   </script>
 </body>
 </html>
+
 
