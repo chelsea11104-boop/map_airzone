@@ -127,21 +127,41 @@
     }).addTo(map);
 
     // ===============================
-    // LOAD GEOJSON BATAS KECAMATAN
+    // LOAD GEOJSON BATAS KECAMATAN + WARNA BERBEDA
     // ===============================
     fetch("batas_kecamatan.geojson")
       .then(response => response.json())
       .then(data => {
+    
+        // Fungsi untuk memberi warna berbeda secara konsisten
+        function getRandomColor(name) {
+          // Agar warnanya tetap sama setiap load, kita hash dari nama kecamatan
+          let hash = 0;
+          for (let i = 0; i < name.length; i++) {
+            hash = name.charCodeAt(i) + ((hash << 5) - hash);
+          }
+          const c = (hash & 0x00ffffff)
+            .toString(16)
+            .toUpperCase();
+    
+          return "#" + "00000".substring(0, 6 - c.length) + c;
+        }
+    
         L.geoJSON(data, {
-          style: {
-            color: "#34495e",
-            weight: 1,
-            fillOpacity: 0
+          style: function (feature) {
+            const kecamatan = feature.properties.NAMA_KEC || feature.properties.kecamatan || "default";
+            return {
+              color: "#555",
+              weight: 1,
+              fillColor: getRandomColor(kecamatan),
+              fillOpacity: 0.35
+            };
           }
         }).addTo(map);
+    
       })
       .catch(err => console.error("Gagal load GeoJSON:", err));
-
+        
     // ===============================
     // WARNA MARKER BERDASARKAN PM2.5
     // ===============================
@@ -270,3 +290,4 @@
   </script>
 </body>
 </html>
+
