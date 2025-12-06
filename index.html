@@ -146,6 +146,9 @@
               fillOpacity: 0.4,
             };
           },
+          pointToLayer: function(feature, latlng) {
+            return null;
+          },
           onEachFeature: function (feature, layer) {
             if (feature.properties && feature.properties.name) {
               layer.bindPopup(`<b>${feature.properties.name}</b>`);
@@ -292,5 +295,6 @@
   </script>
 </body>
 </html>
+
 
 
